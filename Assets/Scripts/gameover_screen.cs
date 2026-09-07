@@ -1,24 +1,41 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public class gameover_screen : MonoBehaviour
 {
-    // Start is called before the first frame update
+    public Text distance_text;
+    public Text coins_text;
+    public Text best_distance_text;
+
     void Start()
     {
-        
-    }
+        if (distance_text != null)
+        {
+            distance_text.text = "Distancia: " + ui_controller.LastDistance + "m";
+        }
 
-    // Update is called once per frame
-    void Update()
-    {
-        
+        if (coins_text != null)
+        {
+            coins_text.text = "Moedas: " + ui_controller.LastCoins;
+        }
+
+        if (best_distance_text != null)
+        {
+            int bestDistance = Mathf.Max(ui_controller.BestDistance, PlayerPrefs.GetInt("BestDistance", 0));
+            best_distance_text.text = "Recorde: " + bestDistance + "m";
+        }
     }
 
     public void return_title()
     {
+        Time.timeScale = 1f;
         SceneManager.LoadScene("Titlescreen");
+    }
+
+    public void restart_game()
+    {
+        Time.timeScale = 1f;
+        SceneManager.LoadScene("Gameplay");
     }
 }

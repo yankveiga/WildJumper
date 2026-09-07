@@ -1,12 +1,9 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class TittleButton : MonoBehaviour
 {
-
     private mind_wave mind;
 
     public InputField name_player;
@@ -18,39 +15,44 @@ public class TittleButton : MonoBehaviour
     public Text mind_text;
     public GameObject mind_on;
 
-    // Tela das configurações
+    // Tela das configuracoes
     public GameObject config_obj;
     private bool config_control = false;
 
-    // Tela das instruições
+    // Tela das instrucoes
     public GameObject instr_obj;
     private bool instr_control = false;
 
-    // Start is called before the first frame update
     void Start()
     {
-        mind = GameObject.FindWithTag("Mind").GetComponent<mind_wave>();
-        name_player.onEndEdit.AddListener(OnEndEdit);
+        GameObject mindObject = GameObject.FindWithTag("Mind");
+        if (mindObject != null)
+        {
+            mind = mindObject.GetComponent<mind_wave>();
+        }
+
+        if (name_player != null)
+        {
+            name_player.onEndEdit.AddListener(OnEndEdit);
+        }
+
+        UpdateMindText("Aperte o botao para conectar ao MindWave.");
     }
 
-    // Update is called once per frame
     void Update()
     {
-        if(mind_control && !mind.control){
-            mind_text.text = "Aperte o botão para se conectar ao Mind Wave!";
+        if (!mind_control || mind == null)
+        {
+            return;
         }
 
-        if(mind.control)
+        if (!mind.control)
         {
-            if(mind.conectado)
-            {
-                mind_text.text = "Conectado!!";
-            }
-            else if(!mind.conectado)
-            {
-                mind_text.text = "Não foi possível conectar-se ao Mind Wave\nTente novamente!";
-            }
+            UpdateMindText("Aperte o botao para conectar ao MindWave.");
+            return;
         }
+
+        UpdateMindText(mind.conectado ? "Conectado!" : "Nao foi possivel conectar ao MindWave. Tente novamente.");
     }
 
     public void next_scene()
@@ -60,51 +62,47 @@ public class TittleButton : MonoBehaviour
 
     public void mind_open()
     {
-        if(!mind_control)
-        {
-            mind_obj.SetActive(true);
-            mind_control = true;
-        }
-        else
-        {
-            mind_obj.SetActive(false);
-            mind_control = false;
-        }
+        mind_control = TogglePanel(mind_obj, mind_control);
     }
 
     public void config_open()
     {
-        if(!config_control)
-        {
-            config_obj.SetActive(true);
-            config_control = true;
-        }
-        else
-        {
-            config_obj.SetActive(false);
-            config_control = false;
-        }
+        config_control = TogglePanel(config_obj, config_control);
     }
 
     public void instr_open()
     {
-        if(!instr_control)
-        {
-            instr_obj.SetActive(true);
-            instr_control = true;
-        }
-        else
-        {
-            instr_obj.SetActive(false);
-            instr_control = false;
-        }
+        instr_control = TogglePanel(instr_obj, instr_control);
     }
 
     public void mind_connect()
     {
-        if(mind_control)
+        if (mind_control && mind != null)
         {
             mind.control = true;
+        }
+        else
+        {
+            UpdateMindText("MindWave nao encontrado nesta cena.");
+        }
+    }
+
+    private bool TogglePanel(GameObject panel, bool currentState)
+    {
+        bool nextState = !currentState;
+        if (panel != null)
+        {
+            panel.SetActive(nextState);
+        }
+
+        return nextState;
+    }
+
+    private void UpdateMindText(string message)
+    {
+        if (mind_text != null)
+        {
+            mind_text.text = message;
         }
     }
 

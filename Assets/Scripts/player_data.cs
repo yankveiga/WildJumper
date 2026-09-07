@@ -26,8 +26,17 @@ public class player_data : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        tittle = GameObject.Find("TitleScreen").GetComponent<TittleButton>();
-        mind = GameObject.FindWithTag("Mind").GetComponent<mind_wave>();
+        GameObject titleObject = GameObject.Find("TitleScreen");
+        if (titleObject != null)
+        {
+            tittle = titleObject.GetComponent<TittleButton>();
+        }
+
+        GameObject mindObject = GameObject.FindWithTag("Mind");
+        if (mindObject != null)
+        {
+            mind = mindObject.GetComponent<mind_wave>();
+        }
         cena_atual = SceneManager.GetActiveScene().name;
         SceneManager.sceneLoaded += OnSceneLoaded;
     }
@@ -35,7 +44,7 @@ public class player_data : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (tittle.on_end_edit)
+        if (tittle != null && tittle.on_end_edit)
         {
             name = tittle.name_player.text;
             tittle.on_end_edit = false;
@@ -57,15 +66,15 @@ public class player_data : MonoBehaviour
     // Configurando o diretorio e o nome do arquivo
     public string Create_File()
     {
-        // Se a variável name estiver vazia renomeie ela
+        // Se a variÃ¡vel name estiver vazia renomeie ela
         if(name == "")
         {
             name = "sem_nome";
         }
-        file_name += diretorio + @"\Data\" + name.ToString() + ".csv";
+        string pasta = Path.Combine(diretorio, "Data");
+        file_name = Path.Combine(pasta, name.ToString() + ".csv");
 
-        // Se tiver um arquivo com o mesmo nome na pasta não sobreescrever
-        string pasta = diretorio + @"\Data\";
+        // Se tiver um arquivo com o mesmo nome na pasta nÃ£o sobreescrever
         if (Directory.Exists(pasta))
         {
             string[] arquivos = Directory.GetFiles(pasta);
@@ -94,7 +103,7 @@ public class player_data : MonoBehaviour
         while(cena_atual == cena_gameplay)
         {
             yield return new WaitForSeconds(1);
-            if (Time.timeScale != 0)
+            if (Time.timeScale != 0 && player != null && ui != null)
             {
                 float attention = mind_wave.sAttention;
                 float meditation = mind_wave.sMeditation;
@@ -141,8 +150,17 @@ public class player_data : MonoBehaviour
         cena_atual = scene.name;
         if(cena_atual == cena_gameplay && !cena_certa)
         {
-            player = GameObject.Find("Player").GetComponent<player_controller>();
-            ui = GameObject.Find("ui_controller").GetComponent<ui_controller>();
+            GameObject playerObject = GameObject.Find("Player");
+            if (playerObject != null)
+            {
+                player = playerObject.GetComponent<player_controller>();
+            }
+
+            GameObject uiObject = GameObject.Find("ui_controller");
+            if (uiObject != null)
+            {
+                ui = uiObject.GetComponent<ui_controller>();
+            }
         }
     }
 }

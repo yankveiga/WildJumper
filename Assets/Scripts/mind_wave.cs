@@ -25,6 +25,7 @@ public class mind_wave : MonoBehaviour
     public int hud_count;
     private player_data data;
     private bool cena;
+    private bool subscribedToMindwaveData = false;
 
     void Start()
     {
@@ -35,10 +36,17 @@ public class mind_wave : MonoBehaviour
     {
         if(control)
         {
-            MindwaveManager.Instance.Controller.OnUpdateMindwaveData += OnUpdateMindwaveData;
+            if (!subscribedToMindwaveData)
+            {
+                MindwaveManager.Instance.Controller.OnUpdateMindwaveData += OnUpdateMindwaveData;
+                subscribedToMindwaveData = true;
+            }
             Connect();
         }
-        cena = data.cena_certa;
+        if (data != null)
+        {
+            cena = data.cena_certa;
+        }
     }
 
     public void OnUpdateMindwaveData(MindwaveDataModel _Data)
@@ -55,6 +63,11 @@ public class mind_wave : MonoBehaviour
     }
     public void Connect()
     {
+        if (TMPText == null)
+        {
+            return;
+        }
+
         if (m_MindwaveData.eegPower.delta > 0)
         {
             TMPText.text = "Connected";
@@ -78,7 +91,10 @@ public class mind_wave : MonoBehaviour
     {
         MindwaveManager.Instance.Controller.Connect();
         MindwaveController.isTimeout = false;
-        TMPText.text = "Retry Connection";
+        if (TMPText != null)
+        {
+            TMPText.text = "Retry Connection";
+        }
     }
 
     private void Awake()
@@ -90,7 +106,7 @@ public class mind_wave : MonoBehaviour
     {
         while (true)
         {
-            // Pega os valores do mindwave e salva em vari·veis
+            // Pega os valores do mindwave e salva em vari√°veis
             sStatus = Status = m_MindwaveData.status;
             sSignal = Signal = m_MindwaveData.poorSignalLevel;
             sAttention = Attention = m_MindwaveData.eSense.attention;
@@ -115,6 +131,14 @@ public class mind_wave : MonoBehaviour
             }
 
             yield return new WaitForSeconds(1);
+        }
+    }
+
+    private void OnDestroy()
+    {
+        if (subscribedToMindwaveData && MindwaveManager.Instance != null)
+        {
+            MindwaveManager.Instance.Controller.OnUpdateMindwaveData -= OnUpdateMindwaveData;
         }
     }
 }
